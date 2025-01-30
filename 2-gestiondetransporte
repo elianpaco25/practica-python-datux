@@ -1,1 +1,130 @@
+class Conductor:
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.horarios = []  # Lista de horarios en los que trabaja (solo horas)
+
+    def agregar_horario(self, horario):
+        if horario in self.horarios:
+            print(f"⚠️ El conductor {self.nombre} ya tiene asignado el horario {horario}:00.")
+        else:
+            self.horarios.append(horario)
+            print(f"✅ Horario {horario}:00 asignado a {self.nombre}.")
+
+class Bus:
+    def __init__(self, id_bus):
+        self.id_bus = id_bus
+        self.ruta = None
+        self.horarios = []  # Lista de horarios disponibles
+        self.conductor_asignado = None  # Conductor asignado al bus
+
+    def asignar_ruta(self, ruta):
+        self.ruta = ruta
+        print(f"✅ Ruta '{ruta}' asignada al bus {self.id_bus}.")
+
+    def agregar_horario(self, horario):
+        if horario in self.horarios:
+            print(f"⚠️ El bus {self.id_bus} ya tiene el horario {horario}:00.")
+        else:
+            self.horarios.append(horario)
+            print(f"✅ Horario {horario}:00 agregado al bus {self.id_bus}.")
+
+class Admin:
+    def __init__(self):
+        self.buses = []
+        self.conductores = []
+
+    def agregar_bus(self, id_bus):
+        self.buses.append(Bus(id_bus))
+        print(f"🚌 Bus {id_bus} agregado correctamente.")
+
+    def agregar_conductor(self, nombre):
+        self.conductores.append(Conductor(nombre))
+        print(f"👨‍✈️ Conductor {nombre} agregado correctamente.")
+
+    def asignar_horario_conductor(self, nombre, horario):
+        for conductor in self.conductores:
+            if conductor.nombre == nombre:
+                conductor.agregar_horario(horario)
+                return
+        print(f"⚠️ Conductor {nombre} no encontrado.")
+
+    def asignar_bus_a_conductor(self, id_bus, nombre, horario):
+        bus = next((b for b in self.buses if b.id_bus == id_bus), None)
+        conductor = next((c for c in self.conductores if c.nombre == nombre), None)
+
+        if not bus:
+            print(f"❌ Bus {id_bus} no encontrado.")
+            return
+        if not conductor:
+            print(f"❌ Conductor {nombre} no encontrado.")
+            return
+        if horario not in bus.horarios:
+            print(f"❌ El bus {id_bus} no tiene horario {horario}:00 disponible.")
+            return
+        if any(horario in c.horarios for c in self.conductores if c != conductor):
+            print(f"⚠️ No se puede asignar. El horario {horario}:00 ya está ocupado por otro conductor.")
+            return
+
+        bus.conductor_asignado = conductor
+        conductor.agregar_horario(horario)
+        print(f"✅ Conductor {nombre} asignado al bus {id_bus} en el horario {horario}:00.")
+
+# Menú interactivo
+admin = Admin()
+
+while True:
+    print("\n--- GESTIÓN DE BUSES ---")
+    print("1. Agregar Bus")
+    print("2. Agregar Ruta a Bus")
+    print("3. Agregar Horario a Bus")
+    print("4. Agregar Conductor")
+    print("5. Agregar Horario a Conductor")
+    print("6. Asignar Bus a Conductor")
+    print("7. Salir")
+
+    opcion = input("Selecciona una opción: ")
+
+    if opcion == "1":
+        id_bus = input("Ingrese el ID del Bus: ")
+        admin.agregar_bus(id_bus)
+
+    elif opcion == "2":
+        id_bus = input("Ingrese el ID del Bus: ")
+        ruta = input("Ingrese la ruta del Bus: ")
+        bus = next((b for b in admin.buses if b.id_bus == id_bus), None)
+        if bus:
+            bus.asignar_ruta(ruta)
+        else:
+            print(f"⚠️ Bus {id_bus} no encontrado.")
+
+    elif opcion == "3":
+        id_bus = input("Ingrese el ID del Bus: ")
+        horario = int(input("Ingrese el horario (solo la hora en formato 24h, ej: 14): "))
+        bus = next((b for b in admin.buses if b.id_bus == id_bus), None)
+        if bus:
+            bus.agregar_horario(horario)
+        else:
+            print(f"⚠️ Bus {id_bus} no encontrado.")
+
+    elif opcion == "4":
+        nombre = input("Ingrese el nombre del conductor: ")
+        admin.agregar_conductor(nombre)
+
+    elif opcion == "5":
+        nombre = input("Ingrese el nombre del conductor: ")
+        horario = int(input("Ingrese el horario (solo la hora en formato 24h, ej: 14): "))
+        admin.asignar_horario_conductor(nombre, horario)
+
+    elif opcion == "6":
+        id_bus = input("Ingrese el ID del Bus: ")
+        nombre = input("Ingrese el nombre del conductor: ")
+        horario = int(input("Ingrese el horario (solo la hora en formato 24h, ej: 14): "))
+        admin.asignar_bus_a_conductor(id_bus, nombre, horario)
+
+    elif opcion == "7":
+        print("👋 Saliendo del sistema...")
+        break
+
+    else:
+        print("⚠️ Opción inválida. Intente de nuevo.")
 
